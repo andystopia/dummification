@@ -46,11 +46,13 @@
 #'
 #' @export
 substr_dummify <- function(column, prefix, options, dummyVarNames, otherCol="OTHER") {
-  options <- options[order(-nchar(options))]
+  ordering <- order(-nchar(options))
+  options <- options[ordering]
+  dummyVarNames <- dummyVarNames[ordering]
   df <- data.frame(matrix(vector(), nrow = length(column), ncol = 0))
 
   purrr::map2(options, dummyVarNames, \(option, dummy) {
-    df[[glue::glue("{prefix}.{dummy}")]] <- grepl(option, column)
+    df[[glue::glue("{prefix}.{dummy}")]] <<- grepl(option, column, fixed=T)
     column <<- column |> map(\(item) stringr::str_remove_all(item, fixed(option)))
   });
 
@@ -65,5 +67,3 @@ substr_dummify <- function(column, prefix, options, dummyVarNames, otherCol="OTH
   df[[glue::glue("{prefix}.{otherCol}")]] <- other_col
   df
 }
-
-
