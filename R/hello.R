@@ -48,11 +48,11 @@
 substr_dummify <- function(column, prefix, options, dummyVarNames, otherCol="OTHER") {
   options <- options[order(-nchar(options))]
   df <- data.frame(matrix(vector(), nrow = length(column), ncol = 0))
-  for (option in options) {
-    df[[glue::glue("{prefix}.{option}")]] <- grepl(option, column)
-    column <<- column |> map(\(item) stringr::str_remove_all(item, fixed(option)))
 
-  }
+  purrr::map2(options, dummyVarNames, \(option, dummy) {
+    df[[glue::glue("{prefix}.{dummy}")]] <- grepl(option, column)
+    column <<- column |> map(\(item) stringr::str_remove_all(item, fixed(option)))
+  });
 
   other_col <- column |> purrr::map(\(col) {
     v <- rlang::duplicate(col)
